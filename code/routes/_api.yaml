@@ -1,0 +1,22 @@
+tags:
+  - name: users
+    description: User and login functions
+
+components:
+  schemas:
+    Id:
+      type: integer
+      format: int32
+      minimum: 1
+      example: 2
+
+  parameters:
+    Id:
+      in: path
+      name: id
+      description: Unique id
+      required: true
+      schema:
+        $ref: "#/components/schemas/Id"
+
+
