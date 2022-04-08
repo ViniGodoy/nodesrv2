@@ -1,19 +1,50 @@
-const express = require('express');
-const router = express.Router();
-const User = require('../model/User');
 const jwt = require('../jwt');
 const passport = require('passport');
+const User = require('../model/User');
 
-router.post('/', async function(req, res, next) {
-    if (!req.body || !req.body.name) {
-        return res.sendStatus(400);
+/**
+ * @openapi
+ *
+ *  /users:
+ *   post:
+ *     summary: "Insere um novo usuário "
+ *     tags:
+ *       - "users"
+ *
+ *     operationId: users_insert
+ *     x-eov-operation-handler: user-handlers
+ *
+ *     requestBody:
+ *       description: "User data to include"
+ *       content:
+ *          "application/json":
+ *            schema:
+ *               type: object
+ *               required:
+ *                 - name
+ *               properties:
+ *                 name:
+ *                   type: string
+ *                   example: "Fulano de Tal"
+ *
+ *
+ *     responses:
+ *       '201':
+ *         description: "Usuário inserido"
+ *       '400':
+ *         description: "Parâmetro inválido"
+ */
+module.exports.users_insert = [
+    async function(req, res) {
+        const {body: {name}} = req;
+        const user = await User.create({name});
+
+        if (!user) {
+            return res.sendStatus(404);
+        }
+        res.status(201).json(user);
     }
-
-    const user = await User.create({
-        name: req.body.name
-    });
-    return res.status(201).json(user);
-});
+]
 
 /**
  * @openapi
@@ -23,6 +54,9 @@ router.post('/', async function(req, res, next) {
  *     summary: "Lista um usuário do sistema"
  *     tags:
  *       - "users"
+ *
+ *     parameters:
+ *       - $ref: "#/components/parameters/Id"
  *
  *     operationId: users_get
  *     x-eov-operation-handler: user-handlers
@@ -89,8 +123,8 @@ module.exports.users_list = [
  * @openapi
  *
  *  /users/me:
- *   patch:
- *     summary: "Atualiza o usuário passado por parâmetro"
+ *   post:
+ *     summary: "Atualiza os dados do próprio usuário"
  *     tags:
  *       - "users"
  *
@@ -135,18 +169,3 @@ module.exports.users_update = [
         res.json(await user.save());
     }
 ]
-
-router.delete('/:id', async function(req, res, next) {
-    if (!req.params.id) {
-        return res.sendStatus(400);
-    }
-
-    const {params: {id}} = req;
-
-    const user = await User.findByPk(id);
-    if (!user) {
-        return res.sendStatus(404);
-    }
-    await user.destroy();
-    res.sendStatus(200);
-});

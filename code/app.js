@@ -42,6 +42,7 @@ const swaggerOptions = {
 };
 
 const swaggerDocs = swaggerJsDoc(swaggerOptions);
+delete swaggerDocs.channels;
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 app.use(OpenApiValidator.middleware({
     apiSpec: swaggerDocs,
