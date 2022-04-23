@@ -1,44 +1,43 @@
 const jwt = require('jwt-simple');
-const passportJwt = require('passport-jwt');
+const {ExtractJwt, Strategy} = require('passport-jwt');
 
-const ExtractJwt = passportJwt.ExtractJwt;
-const Strategy = passportJwt.Strategy;
-const AnonymousStrategy = require('passport-anonymous').Strategy;
+const AnonymousStrategy = require('passport-anonymous');
 
-const SECRET = '8zhDPzuaZTn7C9DxL84aKo45UQintAeT';
-const ISSUER = "PUCPR";
+const SECRET = 'c9226a7d-d3bb-403d-abac-9becce154a3c';
+const ISSUER = 'PUCPR';
 
 const params = {
     secretOrKey: SECRET,
     jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-    ignoreExpiration: true,
+    ignoreExpiration: false,
     issuer: ISSUER
-}
+};
 
 function clockTimestamp(date = new Date()) {
     return Math.floor(date.getTime() / 1000);
 }
 
-module.exports.createToken = (user) => {
+module.exports.createToken = function(user) {
     const DAYS = 10;
 
-    let exp = new Date();
+    const exp = new Date();
     exp.setDate(exp.getDate() + DAYS);
 
     const payload = {
         iss: ISSUER,
         iat: clockTimestamp(),
-        exp,
-        user: { id: user.id }
+        exp: clockTimestamp(exp),
+        user: {id: user.id}
     };
     return jwt.encode(payload, SECRET);
 }
 
 module.exports.strategy = {}
 
-module.exports.strategy.jwt = new Strategy(params, (payload, done) => {
-    payload.user.id = parseInt(payload.user.id);
-    done(null, payload.user);
-});
+module.exports.strategy.jwt =
+    new Strategy(params, (payload, done) => {
+        payload.user.id = parseInt(payload.user.id);
+        return done(null, payload.user);
+    });
 
 module.exports.strategy.none = new AnonymousStrategy();

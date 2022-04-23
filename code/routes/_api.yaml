@@ -8,7 +8,7 @@ components:
       type: integer
       format: int32
       minimum: 1
-      example: 2
+      example: 150
 
   parameters:
     Id:
@@ -17,6 +17,10 @@ components:
       description: Unique id
       required: true
       schema:
-        $ref: "#/components/schemas/Id"
+        $ref: '#/components/schemas/Id'
 
-
+  securitySchemes:
+    JWT:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

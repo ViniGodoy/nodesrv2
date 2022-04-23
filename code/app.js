@@ -16,7 +16,7 @@ const database = require('./model/db');
 app.use(passport.initialize());
 app.use(logger('dev'));
 app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
+app.use(express.urlencoded({extended: false}));
 app.use(cookieParser());
 
 passport.use('jwt', jwt.strategy.jwt);
@@ -43,19 +43,17 @@ const swaggerOptions = {
 
 const swaggerDocs = swaggerJsDoc(swaggerOptions);
 delete swaggerDocs.channels;
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
+
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 app.use(OpenApiValidator.middleware({
     apiSpec: swaggerDocs,
     unknownFormats: [],
-    operationHandlers: __dirname + '/routes'
+    operationHandlers: __dirname + "/routes"
 }));
 
-(async () => {
-    try {
-        const result = await database.sync();
-        console.log(result);
-    } catch (err) {
-        console.log(err);
-    }
-})();
+require('./model/User');
+database.sync()
+    .then(console.log)
+    .catch(console.log);
+
 module.exports = app;
